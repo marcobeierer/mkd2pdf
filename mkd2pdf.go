@@ -35,8 +35,10 @@ func main() {
 		panic(err)
 	}
 
-	if count != 1 {
-		panic("invalid input")
+	if count != 1 || filenumber > len(filenames) {
+
+		fmt.Println("Invalid input. Please try again.")
+		return
 	}
 
 	selectedFilename := filenames[filenumber]
@@ -45,11 +47,34 @@ func main() {
 	_, err = os.Stat(pdfFilename)
 	if err == nil {
 
-		fmt.Printf("File %s already exists.\n", pdfFilename)
-		return
+		fmt.Printf("File %s already exists.\nDo you want to overwrite the file? [yes/no]\n", pdfFilename)
+
+		var overwrite string
+		_, err := fmt.Scanf("%s", &overwrite)
+		if err != nil {
+			panic(err)
+		}
+
+		if overwrite != "yes" {
+			return
+		}
 	}
 
-	cmd := exec.Command("pandoc", "--toc", selectedFilename, "-o", pdfFilename)
+	cmd := exec.Command("pandoc", selectedFilename, "-o", pdfFilename)
+
+	fmt.Print("Do you need a table of contents? [yes/no]\n")
+
+	var toc string
+	_, err = fmt.Scanf("%s", &toc)
+	if err != nil {
+		panic(err)
+	}
+
+	if toc == "yes" {
+		cmd.Args = append(cmd.Args, "--toc")
+	}
+
+	fmt.Printf("Conversation started. Please wait.\n")
 
 	err = cmd.Run()
 	if err != nil {
