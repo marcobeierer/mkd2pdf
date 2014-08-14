@@ -10,6 +10,28 @@ import (
 
 func main() {
 
+	selectedFilename := selectFileToConvert()
+	pdfFilename := strings.Replace(selectedFilename, ".mkd", ".pdf", -1) // TODO use regexp to make     sure that at the end
+
+	overwriteExistingFile(pdfFilename)
+
+	cmd := exec.Command("pandoc", selectedFilename, "-o", pdfFilename)
+
+	tableOfContents(cmd)
+
+	fmt.Printf("\nConversation started. Please wait.\n")
+
+	err := cmd.Run()
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Printf("%s successfully converted to %s.\n", selectedFilename, pdfFilename)
+	return
+}
+
+func selectFileToConvert() string {
+
 	fmt.Println("Available markdown files:")
 
 	filenames, err := filepath.Glob("*.mkd")
@@ -20,7 +42,7 @@ func main() {
 	if len(filenames) < 1 {
 
 		fmt.Println("No files available.")
-		return
+		os.Exit(1)
 	}
 
 	for index, filename := range filenames {
@@ -31,23 +53,23 @@ func main() {
 
 	var filenumber int
 	count, err := fmt.Scanf("%d", &filenumber)
-	if err != nil {
-		panic(err)
-	}
-
-	if count != 1 || filenumber > len(filenames) {
+	if err != nil || count != 1 || filenumber > len(filenames) {
 
 		fmt.Println("Invalid input. Please try again.")
-		return
+		os.Exit(1)
 	}
 
 	selectedFilename := filenames[filenumber]
-	pdfFilename := strings.Replace(selectedFilename, ".mkd", ".pdf", -1) // TODO use regexp to make     sure that at the end
 
-	_, err = os.Stat(pdfFilename)
+	return selectedFilename
+}
+
+func overwriteExistingFile(pdfFilename string) {
+
+	_, err := os.Stat(pdfFilename)
 	if err == nil {
 
-		fmt.Printf("File %s already exists.\nDo you want to overwrite the file? [yes/no]\n", pdfFilename)
+		fmt.Printf("\nFile %s already exists. Do you want to overwrite the file? [yes/no]\n", pdfFilename)
 
 		var overwrite string
 		_, err := fmt.Scanf("%s", &overwrite)
@@ -56,31 +78,26 @@ func main() {
 		}
 
 		if overwrite != "yes" {
-			return
+			os.Exit(0)
 		}
 	}
 
-	cmd := exec.Command("pandoc", selectedFilename, "-o", pdfFilename)
+	return
+}
 
-	fmt.Print("Do you need a table of contents? [yes/no]\n")
+func tableOfContents(command *exec.Cmd) {
+
+	fmt.Print("\nDo you need a table of contents? [yes/no]\n")
 
 	var toc string
-	_, err = fmt.Scanf("%s", &toc)
+	_, err := fmt.Scanf("%s", &toc)
 	if err != nil {
 		panic(err)
 	}
 
 	if toc == "yes" {
-		cmd.Args = append(cmd.Args, "--toc")
+		command.Args = append(command.Args, "--table-of-contents")
 	}
 
-	fmt.Printf("Conversation started. Please wait.\n")
-
-	err = cmd.Run()
-	if err != nil {
-		panic(err)
-	}
-
-	fmt.Printf("%s successfully converted to %s.\n", selectedFilename, pdfFilename)
 	return
 }
