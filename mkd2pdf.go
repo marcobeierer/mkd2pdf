@@ -18,6 +18,7 @@ func main() {
 	}
 
 	if len(filenames) < 1 {
+
 		fmt.Println("No files available.")
 		return
 	}
@@ -29,7 +30,7 @@ func main() {
 	fmt.Print("\nSelect a file to convert: ")
 
 	var filenumber int
-	count, err := fmt.Scanf("%d\n", &filenumber)
+	count, err := fmt.Scanf("%d", &filenumber)
 	if err != nil {
 		panic(err)
 	}
@@ -39,20 +40,22 @@ func main() {
 	}
 
 	selectedFilename := filenames[filenumber]
-	pdfFilename := strings.Replace(selectedFilename, ".mkd", ".pdf", -1) // TODO use regexp to make sure that at the end
+	pdfFilename := strings.Replace(selectedFilename, ".mkd", ".pdf", -1) // TODO use regexp to make     sure that at the end
 
 	_, err = os.Stat(pdfFilename)
 	if err == nil {
+
 		fmt.Printf("File %s already exists.\n", pdfFilename)
 		return
 	}
 
 	cmd := exec.Command("pandoc", "--toc", selectedFilename, "-o", pdfFilename)
 
-	err = cmd.Start()
+	err = cmd.Run()
 	if err != nil {
 		panic(err)
 	}
 
 	fmt.Printf("%s successfully converted to %s.\n", selectedFilename, pdfFilename)
+	return
 }
