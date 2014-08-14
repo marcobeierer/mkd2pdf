@@ -1,6 +1,6 @@
 # MKD2PDF
 
-Elementary command line frontend/assistant for the universal document converter [http://johnmacfarlane.net/pandoc/](Pandoc) to convert Markdown files to the PDF.
+Elementary command line frontend/assistant for the universal document converter [Pandoc](http://johnmacfarlane.net/pandoc/) to convert Markdown files to the PDF.
 
 The intent of the program is to provide a easy way to use Pandoc for users, which are not confident with the command line.
 
