@@ -17,6 +17,11 @@ func main() {
 		panic(err)
 	}
 
+	if len(filenames) < 1 {
+		fmt.Println("No files available.")
+		return
+	}
+
 	for index, filename := range filenames {
 		fmt.Printf("[%d] %s\n", index, filename)
 	}
